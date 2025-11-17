@@ -1,0 +1,18 @@
+# Terraform関連ファイル
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+
+# クラッシュログ
+crash.log
+crash.*.log
+
+# CLI設定ファイル
+.terraformrc
+terraform.rc
+
+# その他
+.DS_Store
