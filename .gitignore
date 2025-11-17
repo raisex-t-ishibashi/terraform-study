@@ -5,8 +5,11 @@
 *.tfstate.*
 *.tfvars
 !terraform.tfvars.example
+
+# プランファイル
 *.tfplan
 tfplan
+plans/
 
 # クラッシュログ
 crash.log
@@ -18,3 +21,5 @@ terraform.rc
 
 # その他
 .DS_Store
+*.local
+*.org
