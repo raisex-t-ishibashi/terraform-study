@@ -1,4 +1,4 @@
-.PHONY: help init plan plan-show apply destroy clean
+.PHONY: help init plan plan-show drift apply destroy clean
 
 # デフォルトターゲット
 help:
@@ -8,6 +8,7 @@ help:
 	@echo "  make init      - Terraformを初期化"
 	@echo "  make plan      - 実行計画を作成してplans/に保存"
 	@echo "  make plan-show - 実行計画を作成してテキスト形式でも保存"
+	@echo "  make drift     - ドリフト検知（手動変更の確認）"
 	@echo "  make apply     - plans/tfplanを適用"
 	@echo "  make destroy   - リソースを削除"
 	@echo "  make clean     - plans/ディレクトリをクリーンアップ"
@@ -35,6 +36,14 @@ plan-show: plans
 	terraform plan -out=plans/tfplan
 	terraform show plans/tfplan -no-color > plans/plan.txt
 	@echo "プランが plans/tfplan と plans/plan.txt に保存されました"
+
+# ドリフト検知（手動変更の確認）
+drift: plans
+	terraform plan -refresh-only -no-color | tee plans/drift-report.txt
+	@echo ""
+	@echo "ドリフトレポートが plans/drift-report.txt に保存されました"
+	@echo "差分があった場合は、以下で状態を同期できます:"
+	@echo "  terraform apply -refresh-only"
 
 # 保存したプランを適用
 apply:

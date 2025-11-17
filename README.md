@@ -109,6 +109,126 @@ terraform destroy
 
 保存したプランは`terraform apply tfplan`で適用できます。
 
+## ドリフト検知
+
+ドリフト（drift）とは、Terraformコード外での手動変更により、実際のインフラとTerraformのステートファイルが乖離することです。
+
+### ドリフトの原因
+
+- AWSコンソールからの手動変更
+- 他のツール（AWS CLI、SDKなど）による変更
+- 別のTerraform実行環境からの変更
+- チームメンバーによる直接変更
+
+### ドリフト検知の実行
+
+```bash
+# Makefileを使用（推奨）
+make drift
+
+# または直接コマンド
+terraform plan -refresh-only
+```
+
+**出力例（ドリフトがない場合）**:
+```
+No changes. Your infrastructure matches the configuration.
+```
+
+**出力例（ドリフトがある場合）**:
+```
+Note: Objects have changed outside of Terraform
+
+Terraform detected the following changes made outside of Terraform since the
+last "terraform apply":
+
+  # aws_s3_bucket.main has changed
+  ~ resource "aws_s3_bucket" "main" {
+      ~ tags = {
+          + "ManualTag" = "added-from-console"
+            # (3 unchanged elements hidden)
+        }
+    }
+```
+
+### ドリフト検知結果の確認
+
+`make drift`を実行すると、結果が`plans/drift-report.txt`に保存されます：
+
+```bash
+# レポートを確認
+cat plans/drift-report.txt
+
+# または lessで確認
+less plans/drift-report.txt
+```
+
+### ドリフトが検出された場合の対応
+
+#### 選択肢1: 手動変更を受け入れる（ステートを同期）
+
+実際のAWSリソースの状態を正とし、ステートファイルを更新する：
+
+```bash
+terraform apply -refresh-only
+```
+
+**注意**: この操作はステートファイルのみを更新し、リソースは変更しません。
+
+#### 選択肢2: 手動変更を戻す（Terraformコードを正とする）
+
+Terraformコードを正とし、手動変更を元に戻す：
+
+```bash
+# 1. Terraformコードを確認・更新
+# 2. 通常のapplyで手動変更を上書き
+terraform apply
+```
+
+#### 選択肢3: 手動変更をコードに反映
+
+手動変更が意図的な場合、Terraformコードを更新：
+
+```hcl
+# main.tf
+resource "aws_s3_bucket" "main" {
+  bucket = var.bucket_name
+
+  tags = {
+    Name        = var.bucket_name
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+    ManualTag   = "added-from-console"  # ← 手動変更を反映
+  }
+}
+```
+
+### 定期的なドリフト検知の推奨
+
+本番環境では定期的にドリフト検知を実行することを推奨します：
+
+```bash
+# 週次でドリフトチェック（cron等で自動化）
+make drift
+
+# 差分があればアラート
+if grep -q "Objects have changed outside of Terraform" plans/drift-report.txt; then
+  echo "警告: ドリフトが検出されました！"
+fi
+```
+
+### Makefileコマンド一覧
+
+```bash
+make init       # Terraformを初期化
+make plan       # 実行計画を作成してplans/に保存
+make plan-show  # 実行計画を作成してテキスト形式でも保存
+make drift      # ドリフト検知（手動変更の確認）
+make apply      # plans/tfplanを適用
+make destroy    # リソースを削除
+make clean      # plans/ディレクトリをクリーンアップ
+```
+
 ## リフレッシュオプションの使い分け
 
 Terraformの`plan`コマンドには、リソースの状態取得（リフレッシュ）をコントロールするオプションがあります。
