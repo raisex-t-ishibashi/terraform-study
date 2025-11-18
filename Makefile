@@ -62,3 +62,8 @@ destroy:
 clean:
 	rm -rf plans/
 	@echo "plans/ディレクトリを削除しました"
+
+pull-state:
+	@mkdir -p state
+	terraform state pull > state/remote-state.tfstate
+	@echo "stateが state/remote-state.tfstate に保存されました"
