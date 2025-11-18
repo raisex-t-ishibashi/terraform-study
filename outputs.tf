@@ -19,3 +19,8 @@ output "bucket_regional_domain_name" {
   description = "S3バケットのリージョナルドメイン名"
   value       = aws_s3_bucket.main.bucket_regional_domain_name
 }
+
+output "vpc_id" {
+  value = aws_vpc.main.id
+  description = "VPCのID"
+}
