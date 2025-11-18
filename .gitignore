@@ -11,6 +11,10 @@
 tfplan
 plans/
 
+# stateファイル
+state/
+state*.txt
+
 # クラッシュログ
 crash.log
 crash.*.log
