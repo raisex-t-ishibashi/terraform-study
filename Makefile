@@ -5,13 +5,14 @@ help:
 	@echo "Terraform操作のMakefileコマンド"
 	@echo ""
 	@echo "使い方:"
-	@echo "  make init      - Terraformを初期化"
-	@echo "  make plan      - 実行計画を作成してplans/に保存"
-	@echo "  make plan-show - 実行計画を作成してテキスト形式でも保存"
-	@echo "  make drift     - ドリフト検知（手動変更の確認）"
-	@echo "  make apply     - plans/tfplanを適用"
-	@echo "  make destroy   - リソースを削除"
-	@echo "  make clean     - plans/ディレクトリをクリーンアップ"
+	@echo "  make init           - Terraformを初期化"
+	@echo "  make plan           - 実行計画を作成してplans/に保存"
+	@echo "  make plan-show      - 実行計画を作成してテキスト形式でも保存"
+	@echo "  make drift          - ドリフト検知（手動変更の確認）"
+	@echo "  make apply          - plans/tfplanを適用"
+	@echo "  make destroy        - リソースを削除"
+	@echo "  make clean          - plans/ディレクトリをクリーンアップ"
+	@echo "  make state-pull     - リモートのtfstateをstate/に保存"
 	@echo ""
 	@echo "Note: planコマンドは自動的にplans/ディレクトリを作成します"
 
@@ -63,7 +64,7 @@ clean:
 	rm -rf plans/
 	@echo "plans/ディレクトリを削除しました"
 
-pull-state:
+state-pull:
 	@mkdir -p state
 	terraform state pull > state/remote-state.tfstate
 	@echo "stateが state/remote-state.tfstate に保存されました"
